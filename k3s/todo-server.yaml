@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nodejs-api-data
+  labels: 
+    app: nodejs-api
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-api
+  labels:
+    app: nodejs-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-api
+  template:
+    metadata:
+      labels:
+        app: nodejs-api
+    spec:
+      containers:
+      - name: nodejs-api
+        image: todo-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80  # Changed from 443
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        env:
+        - name: DATABASE_PATH
+          value: /data/todos.db
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: nodejs-api-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-api-service
+spec:
+  selector:
+    app: nodejs-api
+  ports:
+  - protocol: TCP
+    port: 80  # Changed from 443
+    targetPort: 80  # Changed from 443
+  type: ClusterIP

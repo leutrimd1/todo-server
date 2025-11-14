@@ -1,0 +1,33 @@
+services:
+  todo-server:
+    build: .
+    ports:
+      - "443:443"  # Expose HTTPS port
+    restart: always  # Changed from unless-stopped to always for auto-restart
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=10M
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    user: "1001:1001"
+    networks:
+      - todo-network
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./certs:/etc/ssl/private:ro   # Mount directory containing server.key, server.crt, and chain.pem
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('https').get('https://localhost:443/todos', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  todo-network:
+    driver: bridge
+    internal: false
