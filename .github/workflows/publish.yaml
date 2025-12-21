@@ -22,4 +22,14 @@ jobs:
       - name: Build and push docker image
         run: | 
           docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
-          docker push ghcr.io/${{ github.repository }}:${{ github.sha }} 
+          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Push to k3s
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.K3S_HOST }}
+          username: ${{ secrets.K3S_USERNAME }}
+          key: ${{ secrets.K3S_SSH_KEY }}
+          port: ${{ secrets.K3S_PORT }}
+          script: |
+            kubectl rollout restart deployment ${{ github.event.repository.name }}
