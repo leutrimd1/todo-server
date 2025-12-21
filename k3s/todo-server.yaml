@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nodejs-api-data
+  name: todo-server-data
   labels: 
-    app: nodejs-api
+    app: todo-server
 spec:
   accessModes:
   - ReadWriteOnce
@@ -14,21 +14,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nodejs-api
+  name: todo-server
   labels:
-    app: nodejs-api
+    app: todo-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nodejs-api
+      app: todo-server
   template:
     metadata:
       labels:
-        app: nodejs-api
+        app: todo-server
     spec:
       containers:
-      - name: nodejs-api
+      - name: todo-server
         image: todo-server:latest
         imagePullPolicy: IfNotPresent
         ports:
@@ -50,15 +50,15 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: nodejs-api-data
+          claimName: todo-server-data
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodejs-api-service
+  name: todo-server-service
 spec:
   selector:
-    app: nodejs-api
+    app: todo-server
   ports:
   - protocol: TCP
     port: 80
