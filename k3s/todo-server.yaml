@@ -14,7 +14,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-server
+  name: todo-server-deployment
   labels:
     app: todo-server
 spec:
@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: todo-server
-        image: todo-server:latest
+        image: ghcr.io/leutrimd1/todo-server
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -47,6 +47,8 @@ spec:
         env:
         - name: DATABASE_PATH
           value: /data/todos.db
+      imagePullSecrets:
+      - name: image-pull
       volumes:
       - name: data
         persistentVolumeClaim:
