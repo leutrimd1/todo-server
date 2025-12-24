@@ -32,4 +32,5 @@ jobs:
           key: ${{ secrets.K3S_SSH_KEY }}
           port: ${{ secrets.K3S_PORT }}
           script: |
+            sudo -s
             kubectl rollout restart deployment ${{ github.event.repository.name }}-deployment
